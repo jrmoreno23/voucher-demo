@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Comprobante de Pago - Plantilla Genérica</title>
+<style>
+:root{
+  --bg: #4b1b63;
+  --card: #fff;
+  --muted:#7b6b84;
+  --accent:#06c39a;
+  --shadow: 0 8px 24px rgba(75,27,99,0.18);
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+}
+html,body{height:100%;margin:0;background:var(--bg);color:#111}
+.wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px;gap:18px}
+.card, .promo-box{
+  background:var(--card);
+  border-radius:16px;
+  padding:20px;
+  max-width:420px;
+  width:100%;
+  box-shadow:var(--shadow);
+}
+header{display:flex;justify-content:space-between;align-items:center}
+.title{font-weight:700;color:#5a1f73}
+.amount{font-size:44px;font-weight:800;margin:10px 0;color:#222}
+.meta{color:var(--muted);font-size:14px}
+.divider{height:1px;background:#f1eef6;margin:14px 0;border-radius:2px}
+.labels{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center}
+.code-box{display:flex;gap:6px}
+.code-box span{background:#faf7fb;border-radius:6px;padding:8px 10px;min-width:40px;text-align:center;font-weight:700}
+.txn{font-weight:600}
+.share-container{width:auto;display:flex;justify-content:flex-end;align-items:center;}
+.share-btn{color: #06c39a; font-weight:800; display:flex;align-items:center;gap:6px;cursor:pointer; font-size:13px;}
+.share-icon{width:18px;height:18px;display:inline-block}
+.calendar{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
+.editable{outline:none;border-bottom:1px dashed transparent;padding:2px}
+.editable:focus{border-bottom-color:#ddd}
+.security-row{display:flex;align-items:center;justify-content:flex-start;gap:12px;}
+footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
+/* Estilo uniforme del anuncio */
+.promo-content{display:flex;align-items:center;gap:14px;}
+.promo-content img{width:100px;height:70px;border-radius:10px;object-fit:cover;}
+.promo-text{display:flex;flex-direction:column;justify-content:center;}
+.promo-text div:first-child{font-weight:800;font-size:16px}
+.promo-text div:last-child{font-size:14px;color:#666}
+/* Overlay de edición inicial */
+#overlay{
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+#overlay .card{
+  max-width:400px;
+  width:90%;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+#overlay .card input{
+  padding:8px 10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+#overlay .card label{
+  font-weight:700;
+  color:var(--muted);
+  font-size:14px;
+}
+#overlay .card button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#06c39a,#00b389);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+#editVoucherBtn{
+  margin-top:12px;
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  background:#06c39a;
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Comprobante -->
+  <div class="card" id="voucher">
+    <header>
+      <div>
+        <div class="title">¡Yapeaste!</div>
+        <div class="meta"></div>
+      </div>
+      <div class="share-container">
+        <div class="share-btn" onclick="shareDemo()" title="Compartir">
+          <svg class="share-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" stroke="#06c39a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 6l-4-4-4 4" stroke="#06c39a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 2v14" stroke="#06c39a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          COMPARTIR
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="amount">S/ <span id="amount">1.00</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="txn">
+            <span id="recipient" class="editable" contenteditable="true">Ana B. Ramírez N.</span>
+          </div>
+          <div class="meta calendar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke="#7b6b84" stroke-width="1.2"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke="#7b6b84" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            <span id="currentDateTime"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="security-row">
+        <div style="color:var(--muted);font-weight:700;min-width:150px;">CÓDIGO DE SEGURIDAD</div>
+        <div class="code-box">
+          <span id="c1">0</span>
+          <span id="c2">9</span>
+          <span id="c3">0</span>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+      <div style="color:var(--muted);font-weight:700;margin-bottom:6px">DATOS DE LA TRANSACCIÓN</div>
+      <div class="labels">
+        <div>Nro. de celular</div>
+        <div style="text-align:right" id="phone">*** *** 332</div>
+
+        <div>Destino</div>
+        <div style="text-align:right" id="dest">Yape</div>
+
+        <div>Nro. de operación</div>
+        <div style="text-align:right" id="op">76529090</div>
+      </div>
+
+      <button id="editVoucherBtn">Editar voucher</button>
+    </main>
+
+    <footer>Plantilla genérica para trabajos — no contiene marcas reales ni datos sensibles.</footer>
+  </div>
+
+  <!-- Anuncio -->
+  <div class="promo-box">
+    <div class="promo-content">
+      <img src="https://i.ibb.co/rRSpNYWD/Whats-App-Image-2025-09-14-at-7-10-34-PM.jpg" alt="WhatsApp Promo" />
+      <div class="promo-text">
+        <div>Entradas: Los 4 fantásticos</div>
+        <div>Desde S/ 11.90 — Promo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay de edición inicial -->
+<div id="overlay">
+  <div class="card">
+    <div style="font-weight:700;color:#5a1f73;font-size:18px;margin-bottom:10px;">Completa los datos</div>
+    <label>Nombre y Apellido</label>
+    <input type="text" id="editName" placeholder="Ej: Ana B. Ramírez N.">
+    <label>Número de celular</label>
+    <input type="text" id="editPhone" placeholder="Ej: *** *** 332">
+    <label>Código de seguridad</label>
+    <input type="text" id="editCode" placeholder="Ej: 090" maxlength="3">
+    <label>Monto</label>
+    <input type="text" id="editAmount" placeholder="Ej: 1.00">
+    <label>Código de operación</label>
+    <input type="text" id="editOp" placeholder="Ej: 76529090">
+    <button id="confirmEdit">Confirmar</button>
+  </div>
+</div>
+
+<script>
+function shareDemo(){
+  try{
+    const text = 'Comprobante - (plantilla)';
+    navigator.clipboard.writeText(text).then(()=> alert('Texto copiado al portapapeles.'));
+  }catch(e){ alert('Función de compartir (demo)'); }
+}
+
+// Fecha y hora
+function actualizarFechaHora() {
+  const opcionesFecha = { day: '2-digit', month: 'short', year: 'numeric' };
+  const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true };
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString('es-PE', opcionesFecha).replace('.', '');
+  const hora = ahora.toLocaleTimeString('es-PE', opcionesHora);
+  document.getElementById("currentDateTime").textContent = `${fecha} | ${hora}`;
+}
+actualizarFechaHora();
+setInterval(actualizarFechaHora, 60000);
+
+// Generar código aleatorio
+function generarCodigo() { return Math.floor(Math.random()*900+100).toString(); }
+function generarOperacion() { return Math.floor(Math.random()*90000000+10000000).toString(); }
+
+// Inicializar overlay con valores aleatorios
+function initOverlay(){
+  document.getElementById("editCode").value = generarCodigo();
+  document.getElementById("editOp").value = generarOperacion();
+  document.getElementById("editAmount").value = "1.00";
+  document.getElementById("editName").value = "";
+  document.getElementById("editPhone").value = "";
+  document.getElementById("overlay").style.display = "flex";
+}
+initOverlay();
+
+// Confirmar datos del overlay
+document.getElementById("confirmEdit").addEventListener("click", function(){
+  const name = document.getElementById("editName").value || "Sin nombre";
+  const phone = document.getElementById("editPhone").value || "*** ***";
+  const code = (document.getElementById("editCode").value || generarCodigo()).padStart(3,"0");
+  const amount = document.getElementById("editAmount").value || "0.00";
+  const op = (document.getElementById("editOp").value || generarOperacion());
+
+  document.getElementById("recipient").textContent = name;
+  document.getElementById("phone").textContent = phone;
+  document.getElementById("amount").textContent = amount;
+  document.getElementById("op").textContent = op;
+  document.getElementById("c1").textContent = code[0];
+  document.getElementById("c2").textContent = code[1];
+  document.getElementById("c3").textContent = code[2];
+
+  document.getElementById("overlay").style.display = "none";
+});
+
+// Botón para reabrir overlay
+document.getElementById("editVoucherBtn").addEventListener("click", initOverlay);
+</script>
+</body>
+</html>
+
