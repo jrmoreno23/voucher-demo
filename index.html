@@ -14,16 +14,7 @@
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
 }
 html,body{height:100%;margin:0;background:var(--bg);color:#111}
-/* --- CENTRADO TOTAL --- */
-.wrap{
-  min-height: 100vh; /* altura completa de la ventana */
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center; /* centra verticalmente */
-  padding:28px;
-  gap:18px;
-}
+.wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px;gap:18px;position:relative;}
 .card, .promo-box{
   background:var(--card);
   border-radius:16px;
@@ -73,15 +64,33 @@ footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
   height: 20px;
 }
 
-/* Mensaje de ayuda */
-.help-box {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  color:white;
-  font-weight:700;
-  font-size:16px;
+/* Mensaje de ayuda debajo del botón */
+.help-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 18px;
+  font-size: 16px;
+}
+.help-msg svg { width: 20px; height: 20px; }
+
+/* Logo animado Yape */
+#yapeLogo{
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 50px;
+  height: 50px;
+  display: none;
+  z-index: 5;
+  animation: logoAnim 1s ease forwards;
+}
+@keyframes logoAnim {
+  0% {transform: translate(-20px, -20px) scale(0);}
+  50% {transform: translate(0, 10px) scale(1.1);}
+  100% {transform: translate(0,0) scale(1);}
 }
 
 /* Overlay de edición inicial */
@@ -159,6 +168,9 @@ footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
 </head>
 <body>
 <div class="wrap">
+  <!-- Logo Yape -->
+  <img src="https://i.ibb.co/YapeLogo.png" id="yapeLogo" alt="Logo Yape" />
+
   <div class="card" id="voucher">
     <header>
       <div>
@@ -166,7 +178,6 @@ footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
       </div>
       <div class="share-container">
         <div class="share-btn" onclick="shareDemo()" title="Compartir">
-          <!-- Icono 3 círculos unidos por 2 líneas -->
           <svg class="share-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="6" cy="12" r="3" stroke="#06c39a" stroke-width="1.6"/>
             <circle cx="18" cy="6" r="3" stroke="#06c39a" stroke-width="1.6"/>
@@ -224,10 +235,10 @@ footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
       </div>
     </main>
 
-    <footer>Plantilla genérica para trabajos — no contiene marcas reales ni datos sensibles.</footer>
+    <footer></footer>
   </div>
 
-  <!-- Botón falso Nuevo Yapeo debajo del voucher -->
+  <!-- Botón falso Nuevo Yapeo -->
   <div class="fake-button">
     <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -237,11 +248,12 @@ footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
   </div>
 
   <!-- Mensaje de ayuda debajo del botón -->
-  <div class="help-box">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
-      <path d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm1 17h-2v-2h2v2zm0-4h-2V7h2v7z"/>
+  <div class="help-msg">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 1a9 9 0 0 0-9 9v4a9 9 0 0 0 18 0v-4a9 9 0 0 0-9-9zm0 2a7 7 0 0 1 7 7v4a7 7 0 0 1-14 0v-4a7 7 0 0 1 7-7z"/>
+      <line x1="12" y1="12" x2="12" y2="12"/>
     </svg>
-    <span>Necesito ayuda</span>
+    Necesito ayuda
   </div>
 
   <div class="promo-box">
@@ -316,6 +328,12 @@ function initOverlay(){
   document.getElementById("editName").value = "";
   document.getElementById("editPhone").value = "";
   document.getElementById("overlay").style.display = "flex";
+
+  // Mostrar logo Yape animado temporal
+  const logo = document.getElementById("yapeLogo");
+  logo.style.display = "block";
+  logo.style.animation = 'logoAnim 1s ease forwards';
+  setTimeout(()=> { logo.style.display = "none"; }, 1500);
 }
 initOverlay();
 
