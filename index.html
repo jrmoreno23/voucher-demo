@@ -4,27 +4,337 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Comprobante de Pago - Plantilla Genérica</title>
-
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4b1b63">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Voucher">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-
-<script>
-  // Registrar service worker para PWA
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW fail:", err));
-  }
-</script>
-
 <style>
-/* aquí sigue TODO tu código fuente original sin tocarlo */
+:root{
+  --bg: #4b1b63;
+  --card: #fff;
+  --muted:#7b6b84;
+  --accent:#06c39a;
+  --shadow: 0 8px 24px rgba(75,27,99,0.18);
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+}
+html,body{height:100%;margin:0;background:var(--bg);color:#111}
+.wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px;gap:18px;position:relative;}
+.card, .promo-box{
+  background:var(--card);
+  border-radius:16px;
+  padding:20px;
+  max-width:420px;
+  width:100%;
+  box-shadow:var(--shadow);
+}
+header{display:flex;justify-content:space-between;align-items:center}
+.title{font-weight:700;color:#5a1f73}
+.amount{font-size:44px;font-weight:800;margin:10px 0;color:#222}
+.meta{color:var(--muted);font-size:14px;display:flex;align-items:center;gap:6px}
+.divider{height:1px;background:#f1eef6;margin:14px 0;border-radius:2px}
+.labels{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center}
+.txn{font-weight:600}
+.share-container{width:auto;display:flex;justify-content:flex-end;align-items:center;}
+.share-btn{color: #06c39a; font-weight:800; display:flex;align-items:center;gap:6px;cursor:pointer; font-size:13px;}
+.share-icon{width:18px;height:18px;display:inline-block}
+.security-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
+.promo-content{display:flex;align-items:center;gap:14px;}
+.promo-content img{width:100px;height:70px;border-radius:10px;object-fit:cover;}
+.promo-text{display:flex;flex-direction:column;justify-content:center;}
+.promo-text div:first-child{font-weight:800;font-size:16px}
+.promo-text div:last-child{font-size:14px;color:#666}
+
+/* Botón falso Nuevo Yapeo */
+.fake-button {
+  background: var(--accent);
+  width: 100%;
+  max-width: 420px;
+  border-radius: 16px;
+  padding: 14px;
+  margin: 18px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: var(--shadow);
+}
+.fake-button .btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Mensaje de ayuda debajo del botón */
+.help-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 18px;
+  font-size: 16px;
+}
+.help-msg svg { width: 20px; height: 20px; }
+
+/* Overlay de edición inicial */
+#overlay{
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+#overlay .card{
+  max-width:400px;
+  width:90%;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+#overlay .card input{
+  padding:8px 10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+#overlay .card label{
+  font-weight:700;
+  color:var(--muted);
+  font-size:14px;
+}
+#overlay .card button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#06c39a,#00b389);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* --- Labels de datos en negrita --- */
+.labels div:first-child,
+.labels div:nth-child(3),
+.labels div:nth-child(5){
+  font-weight:700;
+}
+/* --- Valores de datos en negrita --- */
+#phone, #dest, #op {
+  font-weight:700;
+}
+/* --- Código de seguridad --- */
+.security-row > div:first-child{
+  font-weight:700;
+}
+.code-box {
+  display:flex;
+  gap:8px;
+  margin-left:auto;
+}
+.code-box span{
+  background:#faf7fb;
+  border-radius:10px;
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:800;
+}
 </style>
 </head>
 <body>
-  <!-- aquí sigue todo tu código fuente original (voucher, botones, ayuda, anuncio, etc.) -->
+<div class="wrap">
+  <div class="card" id="voucher">
+    <header>
+      <div>
+        <div class="title">¡Yapeaste!</div>
+      </div>
+      <div class="share-container">
+        <div class="share-btn" onclick="shareDemo()" title="Compartir">
+          <svg class="share-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="6" cy="12" r="3" stroke="#06c39a" stroke-width="1.6"/>
+            <circle cx="18" cy="6" r="3" stroke="#06c39a" stroke-width="1.6"/>
+            <circle cx="18" cy="18" r="3" stroke="#06c39a" stroke-width="1.6"/>
+            <line x1="6" y1="12" x2="18" y2="6" stroke="#06c39a" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="6" y1="12" x2="18" y2="18" stroke="#06c39a" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          COMPARTIR
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="amount">S/ <span id="amount">1.00</span></div>
+      <div class="txn">
+        <span id="recipient" class="editable" contenteditable="true">Ana B. Ramírez N.</span>
+      </div>
+
+      <div class="meta" style="margin-top:6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="5" width="18" height="16" rx="2" stroke="#7b6b84" stroke-width="1.6"/>
+          <path d="M16 3v4M8 3v4M3 9h18" stroke="#7b6b84" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span id="currentDate"></span>
+        <span style="margin:0 6px;">|</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="#7b6b84" stroke-width="1.6"/>
+          <path d="M12 7v5l3 2" stroke="#7b6b84" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="currentTime"></span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="security-row">
+        <div style="color:var(--muted);font-weight:700;min-width:150px;">CÓDIGO DE SEGURIDAD</div>
+        <div class="code-box">
+          <span id="c1">0</span>
+          <span id="c2">9</span>
+          <span id="c3">0</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="height:12px"></div>
+      <div style="color:var(--muted);font-weight:700;margin-bottom:6px">DATOS DE LA TRANSACCIÓN</div>
+      <div class="labels">
+        <div>Nro. de celular</div>
+        <div style="text-align:right" id="phone">*** *** 332</div>
+        <div>Destino</div>
+        <div style="text-align:right" id="dest">Yape</div>
+        <div>Nro. de operación</div>
+        <div style="text-align:right" id="op">76529090</div>
+      </div>
+    </main>
+
+    <footer></footer>
+  </div>
+
+  <!-- Botón falso Nuevo Yapeo -->
+  <div class="fake-button">
+    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13"></line>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+    </svg>
+    <span class="btn-text">Nuevo Yapeo</span>
+  </div>
+
+  <!-- Mensaje de ayuda debajo del botón -->
+  <div class="help-msg">
+    <!-- Icono headset -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+         fill="none" stroke="white" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"
+         style="width:24px;height:24px;margin-right:6px;">
+      <path d="M256 48C141.1 48 48 141.1 48 256v80c0 17.7 14.3 32 32 32h32v-144c0-70.7 57.3-128 128-128s128 57.3 128 128v144h32c17.7 0 32-14.3 32-32v-80C464 141.1 370.9 48 256 48z"/>
+      <rect x="96" y="288" width="48" height="128" rx="24"/>
+      <rect x="368" y="288" width="48" height="128" rx="24"/>
+      <path d="M208 416h96"/>
+    </svg>
+    Necesito ayuda
+  </div>
+
+  <div class="promo-box">
+    <div class="promo-content">
+      <img src="https://i.ibb.co/rRSpNYWD/Whats-App-Image-2025-09-14-at-7-10-34-PM.jpg" alt="WhatsApp Promo" />
+      <div class="promo-text">
+        <div>Entradas: Los 4 fantásticos</div>
+        <div>Desde S/ 11.90 — Promo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay de edición -->
+<div id="overlay">
+  <div class="card">
+    <div style="font-weight:700;color:#5a1f73;font-size:18px;margin-bottom:10px;">Completa los datos</div>
+    <label>Nombre y Apellido</label>
+    <input type="text" id="editName" placeholder="Ej: Ana B. Ramírez N.">
+    <label>Número de celular</label>
+    <input type="text" id="editPhone" placeholder="Ej: 987654777">
+    <label>Código de seguridad</label>
+    <input type="text" id="editCode" placeholder="Ej: 090" maxlength="3">
+    <label>Monto</label>
+    <input type="text" id="editAmount" placeholder="Ej: 1.00">
+    <label>Código de operación</label>
+    <input type="text" id="editOp" placeholder="Ej: 76529090">
+    <button id="confirmEdit">Confirmar</button>
+  </div>
+</div>
+
+<script>
+function shareDemo(){
+  try{
+    const text = 'Comprobante - (plantilla)';
+    navigator.clipboard.writeText(text).then(()=> alert('Texto copiado al portapapeles.'));
+  }catch(e){ alert('Función de compartir (demo)'); }
+}
+
+// Fecha y hora
+function actualizarFechaHora() {
+  const opcionesFecha = { day: '2-digit', month: 'short', year: 'numeric' };
+  const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true };
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString('es-PE', opcionesFecha).replace('.', '');
+  const hora = ahora.toLocaleTimeString('es-PE', opcionesHora);
+  document.getElementById("currentDate").textContent = fecha;
+  document.getElementById("currentTime").textContent = hora;
+}
+actualizarFechaHora();
+setInterval(actualizarFechaHora, 60000);
+
+// Generar código aleatorio
+function generarCodigo() { return Math.floor(Math.random()*900+100).toString(); }
+function generarOperacion() { return Math.floor(Math.random()*90000000+10000000).toString(); }
+
+// Formatear número de celular
+function formatearCelular(input) {
+  let clean = input.replace(/\D/g,'');
+  if(clean.length >= 3){
+    let ultimos = clean.slice(-3);
+    return `*** *** ${ultimos}`;
+  }
+  return "*** ***";
+}
+
+// Inicializar overlay con valores
+function initOverlay(){
+  document.getElementById("editCode").value = generarCodigo();
+  document.getElementById("editOp").value = generarOperacion();
+  document.getElementById("editAmount").value = "1.00";
+  document.getElementById("editName").value = "";
+  document.getElementById("editPhone").value = "";
+  document.getElementById("overlay").style.display = "flex";
+}
+initOverlay();
+
+// Confirmar datos del overlay
+document.getElementById("confirmEdit").addEventListener("click", function(){
+  const name = document.getElementById("editName").value || "Sin nombre";
+  const phoneRaw = document.getElementById("editPhone").value || "";
+  const phone = formatearCelular(phoneRaw);
+  const code = (document.getElementById("editCode").value || generarCodigo()).padStart(3,"0");
+  const amount = document.getElementById("editAmount").value || "0.00";
+  const op = (document.getElementById("editOp").value || generarOperacion());
+
+  document.getElementById("recipient").textContent = name;
+  document.getElementById("phone").textContent = phone;
+  document.getElementById("amount").textContent = amount;
+  document.getElementById("op").textContent = op;
+  document.getElementById("c1").textContent = code[0];
+  document.getElementById("c2").textContent = code[1];
+  document.getElementById("c3").textContent = code[2];
+
+  document.getElementById("overlay").style.display = "none";
+});
+</script>
 </body>
 </html>
